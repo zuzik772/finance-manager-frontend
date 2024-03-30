@@ -2,18 +2,18 @@ import { CreateCategoryDto } from "./CreateCategoryDto";
 
 export class CreateEntryDto {
   amount: number;
-  date: Date;
+  date: string;
   currency: string;
   name: string;
-  comment: string;
+  comment?: string;
   // categoryId: number | undefined;
 
   constructor(
     amount: number,
-    date: Date,
+    date: string,
     currency: string,
     name: string,
-    comment: string
+    comment?: string
     // categoryId: number
   ) {
     this.amount = amount;

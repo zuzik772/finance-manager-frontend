@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import {
   Button,
   Keyboard,
@@ -9,82 +10,102 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-
 import { CreateEntryDto } from "../dtos/CreateEntryDto";
 import { createEntry } from "../store/entrySlice";
 import { useAppDispatch } from "../hooks/hooks";
-
-import DateTimePickerComponent from "../components/DateTimePickerComponent";
 import { useNavigation } from "@react-navigation/native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const AddEntryScreen = () => {
-  const [amount, setAmount] = useState(0);
+  const { register, handleSubmit, setValue } = useForm<CreateEntryDto>({
+    defaultValues: {
+      amount: 0,
+      date: new Date().toISOString(),
+      currency: "",
+      name: "",
+      comment: "",
+    },
+  });
   const [date, setDate] = useState(new Date());
-  const [currency, setCurrency] = useState("");
-  const [name, setName] = useState("");
-  const [comment, setComment] = useState("");
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
 
-  const handleSubmit = () => {
+  const onSubmit = (data: CreateEntryDto) => {
     dispatch(
-      createEntry(new CreateEntryDto(amount, date, currency, name, comment))
+      createEntry(
+        new CreateEntryDto(
+          data.amount,
+          data.date,
+          data.currency,
+          data.name,
+          data.comment
+        )
+      )
     );
-    console.log("submitting", amount, date, currency, name, comment);
+    console.log("submitting", data);
     navigation.goBack();
   };
 
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        Keyboard.dismiss();
-      }}
-    >
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <SafeAreaView>
           <Text style={styles.label}>*Amount:</Text>
           <TextInput
             style={styles.input}
-            value={amount.toString()}
-            onChangeText={(text) => setAmount(Number(text))}
+            {...register("amount")}
             keyboardType="numeric"
             placeholder="Enter amount"
+            onChangeText={(text) => setValue("amount", Number(text))}
           />
           <View style={styles.dateContainer}>
             <Text style={styles.label}>*Choose date: </Text>
-            <DateTimePickerComponent
-              onChangeText={(date: React.SetStateAction<Date>) => setDate(date)}
-            ></DateTimePickerComponent>
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                const currentDate = selectedDate || date;
+                setDate(currentDate);
+                setValue("date", currentDate.toISOString());
+              }}
+            />
           </View>
           <Text style={styles.label}>*Currency:</Text>
           <TextInput
             style={styles.input}
-            value={currency}
-            onChangeText={(text) => setCurrency(text)}
+            {...register("currency")}
             placeholder="Enter currency"
+            onChangeText={(text) => setValue("currency", text)}
           />
           <Text style={styles.label}>*Name:</Text>
           <TextInput
             style={styles.input}
-            value={name}
-            onChangeText={(text) => setName(text)}
+            {...register("name")}
             placeholder="Enter name"
+            onChangeText={(text) => setValue("name", text)}
           />
           <Text style={styles.label}>Comment:</Text>
           <TextInput
             style={styles.input}
-            value={comment}
-            onChangeText={(text) => setComment(text)}
+            {...register("comment")}
             placeholder="Enter optional comment"
+            onChangeText={(text) => setValue("comment", text)}
           />
           <View style={styles.buttonContainer}>
-            <Button title="Submit" onPress={handleSubmit} color={"white"} />
+            <Button
+              title="Submit"
+              onPress={handleSubmit(onSubmit)}
+              color={"white"}
+            />
           </View>
         </SafeAreaView>
       </View>
     </TouchableWithoutFeedback>
   );
 };
+
+// ... rest of your code
 
 const styles = StyleSheet.create({
   container: {

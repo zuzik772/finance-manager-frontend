@@ -7,7 +7,7 @@ export class Entry {
   currency: string;
   name: string;
   comment: string;
-  category: Category;
+  category?: Category;
   constructor(
     id: number,
     amount: number,

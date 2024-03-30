@@ -60,9 +60,10 @@ export const entrySlice = createSlice({
     });
     builder.addCase(updateEntry.fulfilled, (state, action) => {
       //Consequences from reducer
-      // state.entries = state.entries.map((entry) =>
-      //   entry.id === action.payload.id ? action.payload : entry
-      // );
+      const index = state.entries.findIndex(
+        (entry) => entry.id === action.payload.id
+      );
+      state.entries[index] = action.payload;
     });
     builder.addCase(deleteEntry.fulfilled, (state, action) => {
       //Consequences from reducer

@@ -1,5 +1,4 @@
 import {
-  Alert,
   Button,
   Keyboard,
   SafeAreaView,
@@ -9,95 +8,105 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import React, { RefObject, useState } from "react";
 import { RootState } from "../store/store";
 import { useAppDispatch, useAppSelector } from "../hooks/hooks";
 import { updateEntry } from "../store/entrySlice";
-import DateTimePickerComponent from "../components/DateTimePickerComponent";
 import { UpdateEntryDTO } from "../dtos/UpdateEntryDto";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../entities/RootStackParamList";
-import { Entry } from "../entities/Entry";
-import { EntryAPI } from "../api/entryAPI";
+import { useForm } from "react-hook-form";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 type Props = NativeStackScreenProps<RootStackParamList, "EntryEdit">;
-export default function EntryEditScreen({ route }: Props) {
-  const { entryId } = route.params;
-  console.log("Edit View, entryId", entryId);
+const EntryEditScreen = React.forwardRef((props: Props, ref) => {
+  const { entryId } = props.route.params;
 
   const item = useAppSelector((state: RootState) =>
     state.entry.entries.find((entry) => entry.id === entryId)
   );
-  const [amount, setAmount] = useState(item?.amount);
-  // const [date, setDate] = useState(new Date(item?.date));
-  const [date, setDate] = useState(
-    item?.date ? new Date(item.date) : new Date()
-  );
+  const [date, setDate] = useState(new Date(item?.date || ""));
 
-  const [currency, setCurrency] = useState(item?.currency);
-  const [name, setName] = useState(item?.name);
-  const [comment, setComment] = useState(item?.comment);
+  const { register, handleSubmit, setValue } = useForm<UpdateEntryDTO>({
+    defaultValues: {
+      amount: item?.amount || 0,
+      date: item?.date
+        ? new Date(item.date).toISOString()
+        : new Date().toISOString(),
+      currency: item?.currency || "",
+      name: item?.name || "",
+      comment: item?.comment || "",
+    },
+  });
 
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
 
-  const handleUpdateEntry = async () => {
+  const handleUpdateEntry = handleSubmit(async (data) => {
     const updateEntryDTO: UpdateEntryDTO = {
-      amount: amount,
-      date: date.toISOString(),
-      currency: currency,
-      name: name,
-      comment: comment,
+      id: entryId,
+      amount: data.amount,
+      date: data.date,
+      currency: data.currency,
+      name: data.name,
+      comment: data.comment,
     };
     dispatch(updateEntry({ entry: updateEntryDTO, id: entryId }));
     navigation.goBack();
-  };
+  });
 
   return (
     <TouchableWithoutFeedback
-      onPress={() => {
-        Keyboard.dismiss();
-      }}
+      onPress={Keyboard.dismiss}
+      ref={ref as RefObject<TouchableWithoutFeedback> | null}
     >
       <View style={styles.container}>
         <SafeAreaView>
           <Text style={styles.label}>*Amount:</Text>
           <TextInput
             style={styles.input}
-            value={amount?.toString()}
-            onChangeText={(text) => setAmount(Number(text))}
+            value={item?.amount.toString()}
+            {...register("amount")}
             keyboardType="numeric"
             placeholder="Enter amount"
+            onChangeText={(text) => setValue("amount", Number(text))}
           />
           <View style={styles.dateContainer}>
             <Text style={styles.label}>*Choose date: </Text>
-            <DateTimePickerComponent
+            <DateTimePicker
               value={date}
-              onChangeText={(date: Date | undefined) => date && setDate(date)}
-            ></DateTimePickerComponent>
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                const currentDate = selectedDate || date;
+                setDate(currentDate);
+                setValue("date", currentDate.toISOString());
+              }}
+            />
           </View>
           <Text style={styles.label}>*Currency:</Text>
           <TextInput
             style={styles.input}
-            value={currency}
-            onChangeText={(text) => setCurrency(text)}
-            placeholder="Enter currency"
+            value={item?.currency}
+            {...register("currency")}
+            onChangeText={(text) => setValue("currency", text)}
           />
           <Text style={styles.label}>*Name:</Text>
           <TextInput
             style={styles.input}
-            value={name}
-            onChangeText={(text) => setName(text)}
+            value={item?.name}
+            {...register("name")}
             placeholder="Enter name"
+            onChangeText={(text) => setValue("name", text)}
           />
           <Text style={styles.label}>Comment:</Text>
           <TextInput
             style={styles.input}
-            value={comment}
-            onChangeText={(text) => setComment(text)}
-            placeholder="Enter optional comment"
+            value={item?.comment}
+            {...register("comment")}
+            placeholder="Enter comment"
+            onChangeText={(text) => setValue("comment", text)}
           />
           <View style={styles.buttonContainer}>
             <Button title="Save" onPress={handleUpdateEntry} color={"white"} />
@@ -106,7 +115,7 @@ export default function EntryEditScreen({ route }: Props) {
       </View>
     </TouchableWithoutFeedback>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -138,3 +147,5 @@ const styles = StyleSheet.create({
     color: "black",
   },
 });
+
+export default EntryEditScreen;

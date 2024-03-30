@@ -2,6 +2,7 @@ import axios from "axios";
 import { CreateEntryDto } from "../dtos/CreateEntryDto";
 import { Update } from "@reduxjs/toolkit";
 import { UpdateEntryDTO } from "../dtos/UpdateEntryDto";
+import { Entry } from "../entities/Entry";
 
 export class EntryAPI {
   static baseUrl = "http://192.168.1.156:3000/entry";
@@ -33,9 +34,9 @@ export class EntryAPI {
   }
   static async updateEntry(id: number, entry: UpdateEntryDTO) {
     try {
-      const response = await axios.put(`${this.baseUrl}/${id}`);
+      const response = await axios.put(`${this.baseUrl}/${id}`, entry);
       console.log("updated entry", response.data);
-      // return response.data;
+      return response.data;
     } catch (error) {
       console.error("Error updating entry:", error);
     }
