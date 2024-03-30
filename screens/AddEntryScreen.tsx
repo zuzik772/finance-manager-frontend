@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import {
   Button,
   Keyboard,
@@ -17,7 +17,13 @@ import { useNavigation } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 const AddEntryScreen = () => {
-  const { register, handleSubmit, setValue } = useForm<CreateEntryDto>({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    control,
+    formState: { errors },
+  } = useForm<CreateEntryDto>({
     defaultValues: {
       amount: 0,
       date: new Date().toISOString(),
@@ -51,13 +57,24 @@ const AddEntryScreen = () => {
       <View style={styles.container}>
         <SafeAreaView>
           <Text style={styles.label}>*Amount:</Text>
-          <TextInput
-            style={styles.input}
-            {...register("amount")}
-            keyboardType="numeric"
-            placeholder="Enter amount"
-            onChangeText={(text) => setValue("amount", Number(text))}
+          {errors.amount && (
+            <Text style={styles.errorMessage}>Amount is required.</Text>
+          )}
+          <Controller
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                style={styles.input}
+                keyboardType="numeric"
+                placeholder="Enter amount"
+                onChangeText={onChange}
+                value={value.toString()}
+              />
+            )}
+            name="amount"
+            rules={{ required: true, min: 1 }}
           />
+
           <View style={styles.dateContainer}>
             <Text style={styles.label}>*Choose date: </Text>
             <DateTimePicker
@@ -72,26 +89,58 @@ const AddEntryScreen = () => {
             />
           </View>
           <Text style={styles.label}>*Currency:</Text>
-          <TextInput
-            style={styles.input}
-            {...register("currency")}
-            placeholder="Enter currency"
-            onChangeText={(text) => setValue("currency", text)}
+          {errors.currency && (
+            <Text style={styles.errorMessage}>Currency is required.</Text>
+          )}
+          <Controller
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                style={styles.input}
+                placeholder="Enter currency"
+                onChangeText={onChange}
+                value={value}
+              />
+            )}
+            name="currency"
+            rules={{ required: true }}
           />
+
           <Text style={styles.label}>*Name:</Text>
-          <TextInput
-            style={styles.input}
-            {...register("name")}
-            placeholder="Enter name"
-            onChangeText={(text) => setValue("name", text)}
+          {errors.name && (
+            <Text style={styles.errorMessage}>Name is required.</Text>
+          )}
+          <Controller
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                style={styles.input}
+                placeholder="Enter name"
+                onChangeText={onChange}
+                value={value}
+              />
+            )}
+            name="name"
+            rules={{ required: true }}
           />
+
           <Text style={styles.label}>Comment:</Text>
-          <TextInput
-            style={styles.input}
-            {...register("comment")}
-            placeholder="Enter optional comment"
-            onChangeText={(text) => setValue("comment", text)}
+          {errors.comment && (
+            <Text style={styles.errorMessage}>Comment is required.</Text>
+          )}
+          <Controller
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                style={styles.input}
+                placeholder="Enter optional comment"
+                onChangeText={onChange}
+                value={value}
+              />
+            )}
+            name="comment"
           />
+
           <View style={styles.buttonContainer}>
             <Button
               title="Submit"
@@ -135,6 +184,11 @@ const styles = StyleSheet.create({
   },
   button: {
     color: "black",
+  },
+
+  errorMessage: {
+    color: "red",
+    marginBottom: 10,
   },
 });
 export default AddEntryScreen;
