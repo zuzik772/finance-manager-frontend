@@ -2,7 +2,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StyleSheet } from "react-native";
 import { RootStackParamList } from "./entities/RootStackParamList";
-import EntryDeleteScreen from "./screens/EntryDeleteScreen";
+import EntryDeleteScreen from "./screens/LoginScreen";
 import EntryEditScreen from "./screens/EntryEditScreen";
 import EntryListScreen from "./screens/EntryListScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -12,6 +12,8 @@ import { Provider } from "react-redux";
 import { store } from "./store/store";
 import AddEntryScreen from "./screens/AddEntryScreen";
 import Toast from "react-native-toast-message";
+import LoginScreen from "./screens/LoginScreen";
+import SignUpScreen from "./screens/SignUpScreen";
 
 export default function App() {
   const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -21,11 +23,12 @@ export default function App() {
   const EntryStackNavigator = () => {
     return (
       <>
-        <RootStack.Navigator initialRouteName="EntryList">
+        <RootStack.Navigator initialRouteName="Login">
+          <RootStack.Screen name="Login" component={LoginScreen} />
+          <RootStack.Screen name="SignUp" component={SignUpScreen} />
           <RootStack.Screen name="EntryList" component={EntryListScreen} />
           <RootStack.Screen name="AddEntry" component={AddEntryScreen} />
           <RootStack.Screen name="EntryEdit" component={EntryEditScreen} />
-          <RootStack.Screen name="EntryDelete" component={EntryDeleteScreen} />
         </RootStack.Navigator>
         <Toast />
       </>
