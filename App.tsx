@@ -11,6 +11,7 @@ import { CategoryParam } from "./entities/CategoryParam";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 import AddEntryScreen from "./screens/AddEntryScreen";
+import Toast from "react-native-toast-message";
 
 export default function App() {
   const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -19,12 +20,15 @@ export default function App() {
 
   const EntryStackNavigator = () => {
     return (
-      <RootStack.Navigator initialRouteName="EntryList">
-        <RootStack.Screen name="EntryList" component={EntryListScreen} />
-        <RootStack.Screen name="AddEntry" component={AddEntryScreen} />
-        <RootStack.Screen name="EntryEdit" component={EntryEditScreen} />
-        <RootStack.Screen name="EntryDelete" component={EntryDeleteScreen} />
-      </RootStack.Navigator>
+      <>
+        <RootStack.Navigator initialRouteName="EntryList">
+          <RootStack.Screen name="EntryList" component={EntryListScreen} />
+          <RootStack.Screen name="AddEntry" component={AddEntryScreen} />
+          <RootStack.Screen name="EntryEdit" component={EntryEditScreen} />
+          <RootStack.Screen name="EntryDelete" component={EntryDeleteScreen} />
+        </RootStack.Navigator>
+        <Toast />
+      </>
     );
   };
   const CategoryNavigator = () => {

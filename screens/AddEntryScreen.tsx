@@ -15,10 +15,10 @@ import { createEntry } from "../store/entrySlice";
 import { useAppDispatch } from "../hooks/hooks";
 import { useNavigation } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import Toast from "react-native-toast-message";
 
 const AddEntryScreen = () => {
   const {
-    register,
     handleSubmit,
     setValue,
     control,
@@ -48,7 +48,10 @@ const AddEntryScreen = () => {
         )
       )
     );
-    console.log("submitting", data);
+    Toast.show({
+      type: "success",
+      text1: "New Entry added!",
+    });
     navigation.goBack();
   };
 
@@ -67,7 +70,7 @@ const AddEntryScreen = () => {
                 style={styles.input}
                 keyboardType="numeric"
                 placeholder="Enter amount"
-                onChangeText={onChange}
+                onChangeText={(text) => onChange(Number(text))}
                 value={value.toString()}
               />
             )}
@@ -98,7 +101,7 @@ const AddEntryScreen = () => {
               <TextInput
                 style={styles.input}
                 placeholder="Enter currency"
-                onChangeText={onChange}
+                onChangeText={(text) => onChange(text)}
                 value={value}
               />
             )}
@@ -116,7 +119,7 @@ const AddEntryScreen = () => {
               <TextInput
                 style={styles.input}
                 placeholder="Enter name"
-                onChangeText={onChange}
+                onChangeText={(text) => onChange(text)}
                 value={value}
               />
             )}
@@ -125,22 +128,18 @@ const AddEntryScreen = () => {
           />
 
           <Text style={styles.label}>Comment:</Text>
-          {errors.comment && (
-            <Text style={styles.errorMessage}>Comment is required.</Text>
-          )}
           <Controller
             control={control}
             render={({ field: { onChange, value } }) => (
               <TextInput
                 style={styles.input}
                 placeholder="Enter optional comment"
-                onChangeText={onChange}
+                onChangeText={(text) => onChange(text)}
                 value={value}
               />
             )}
             name="comment"
           />
-
           <View style={styles.buttonContainer}>
             <Button
               title="Submit"
@@ -153,8 +152,6 @@ const AddEntryScreen = () => {
     </TouchableWithoutFeedback>
   );
 };
-
-// ... rest of your code
 
 const styles = StyleSheet.create({
   container: {
@@ -192,3 +189,10 @@ const styles = StyleSheet.create({
   },
 });
 export default AddEntryScreen;
+function register(
+  arg0: string
+): React.JSX.IntrinsicAttributes &
+  React.JSX.IntrinsicClassAttributes<TextInput> &
+  Readonly<import("react-native").TextInputProps> {
+  throw new Error("Function not implemented.");
+}

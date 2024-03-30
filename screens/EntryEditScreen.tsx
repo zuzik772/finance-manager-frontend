@@ -18,6 +18,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../entities/RootStackParamList";
 import { useForm } from "react-hook-form";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import Toast from "react-native-toast-message";
 
 type Props = NativeStackScreenProps<RootStackParamList, "EntryEdit">;
 const EntryEditScreen = React.forwardRef((props: Props, ref) => {
@@ -28,7 +29,7 @@ const EntryEditScreen = React.forwardRef((props: Props, ref) => {
   );
   const [date, setDate] = useState(new Date(item?.date || ""));
 
-  const { register, handleSubmit, setValue } = useForm<UpdateEntryDTO>({
+  const { register, handleSubmit, setValue, watch } = useForm<UpdateEntryDTO>({
     defaultValues: {
       amount: item?.amount || 0,
       date: item?.date
@@ -39,7 +40,7 @@ const EntryEditScreen = React.forwardRef((props: Props, ref) => {
       comment: item?.comment || "",
     },
   });
-
+  const formValues = watch();
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
 
@@ -53,6 +54,10 @@ const EntryEditScreen = React.forwardRef((props: Props, ref) => {
       comment: data.comment,
     };
     dispatch(updateEntry({ entry: updateEntryDTO, id: entryId }));
+    Toast.show({
+      type: "success",
+      text1: "Entry has been updated!",
+    });
     navigation.goBack();
   });
 
@@ -66,7 +71,7 @@ const EntryEditScreen = React.forwardRef((props: Props, ref) => {
           <Text style={styles.label}>*Amount:</Text>
           <TextInput
             style={styles.input}
-            value={item?.amount.toString()}
+            value={formValues?.amount.toString()}
             {...register("amount")}
             keyboardType="numeric"
             placeholder="Enter amount"
@@ -88,14 +93,14 @@ const EntryEditScreen = React.forwardRef((props: Props, ref) => {
           <Text style={styles.label}>*Currency:</Text>
           <TextInput
             style={styles.input}
-            value={item?.currency}
+            value={formValues?.currency}
             {...register("currency")}
             onChangeText={(text) => setValue("currency", text)}
           />
           <Text style={styles.label}>*Name:</Text>
           <TextInput
             style={styles.input}
-            value={item?.name}
+            value={formValues?.name}
             {...register("name")}
             placeholder="Enter name"
             onChangeText={(text) => setValue("name", text)}
@@ -103,7 +108,7 @@ const EntryEditScreen = React.forwardRef((props: Props, ref) => {
           <Text style={styles.label}>Comment:</Text>
           <TextInput
             style={styles.input}
-            value={item?.comment}
+            value={formValues?.comment}
             {...register("comment")}
             placeholder="Enter comment"
             onChangeText={(text) => setValue("comment", text)}
