@@ -6,6 +6,7 @@ import { Entry } from "../entities/Entry";
 import { EntryAPI } from "../api/entryAPI";
 import { CreateEntryDto } from "../dtos/CreateEntryDto";
 import { UpdateEntryDTO } from "../dtos/UpdateEntryDto";
+import { User } from "../entities/User";
 
 // Define a type for the slice state
 interface EntryState {

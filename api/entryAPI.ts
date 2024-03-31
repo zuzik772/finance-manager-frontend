@@ -1,15 +1,20 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { CreateEntryDto } from "../dtos/CreateEntryDto";
-import { Update } from "@reduxjs/toolkit";
 import { UpdateEntryDTO } from "../dtos/UpdateEntryDto";
-import { Entry } from "../entities/Entry";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { User } from "../entities/User";
 
 export class EntryAPI {
   static baseUrl = "http://192.168.1.156:3000/entry";
 
   static async fetchAll() {
     try {
-      const response = await axios.get(this.baseUrl);
+      const token = await AsyncStorage.getItem("token");
+      const response = await axios.get(this.baseUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("Error fetching entries:", error);
@@ -34,7 +39,12 @@ export class EntryAPI {
   }
   static async updateEntry(id: number, entry: UpdateEntryDTO) {
     try {
-      const response = await axios.put(`${this.baseUrl}/${id}`, entry);
+      const token = await AsyncStorage.getItem("token");
+      const response = await axios.put(`${this.baseUrl}/${id}`, entry, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       console.log("updated entry", response.data);
       return response.data;
     } catch (error) {
@@ -43,7 +53,12 @@ export class EntryAPI {
   }
   static async deleteEntry(id: number) {
     try {
-      const response = await axios.delete(`${this.baseUrl}/${id}`);
+      const token = await AsyncStorage.getItem("token");
+      const response = await axios.delete(`${this.baseUrl}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       console.log("deleted id", id);
       return response.data;
     } catch (error) {

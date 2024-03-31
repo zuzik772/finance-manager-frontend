@@ -1,5 +1,4 @@
 import axios from "axios";
-import { Category } from "../entities/Category";
 import { CreateCategoryDto } from "../dtos/CreateCategoryDto";
 
 export class CategoryAPI {

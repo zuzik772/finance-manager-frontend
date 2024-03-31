@@ -14,6 +14,11 @@ import { RootStackParamList } from "../entities/RootStackParamList";
 import { Controller, useForm } from "react-hook-form";
 import axios from "axios";
 import Toast from "react-native-toast-message";
+import { signUp } from "../store/userSlice";
+import { useDispatch } from "react-redux";
+import { CreateUserDto } from "../dtos/CreateUserDto";
+import { useAppDispatch } from "../hooks/hooks";
+import { UserAPI } from "../api/userAPI";
 
 type SignUpSchema = {
   email: string;
@@ -36,19 +41,26 @@ export default function SignUpScreen({ navigation }: Props) {
   });
 
   const password = watch("password");
+  const dispatch = useAppDispatch();
   const onSubmit = async (data: SignUpSchema) => {
     try {
-      const response = await axios.post(
-        "http://192.168.1.156:3000/auth/signUp",
-        {
-          email: data.email,
-          password: data.password,
-          confirmPassword: data.confirmPassword,
+      const existingUser = await UserAPI.fetchUser(data.email);
+      if (existingUser) {
+        Toast.show({
+          type: "error",
+          text1: "Email already exists",
+        });
+      } else {
+        const actionResult = await dispatch(
+          signUp(
+            new CreateUserDto(data.email, data.password, data.confirmPassword)
+          )
+        );
+        const isSignUpSuccessful = actionResult.payload;
+        if (isSignUpSuccessful) {
+          console.log("Sign up successful");
+          navigation.navigate("Login");
         }
-      );
-      if (response.status === 200) {
-        console.log("Sign up successful");
-        navigation.navigate("Login");
       }
     } catch (error) {
       console.log("Sign up failed", error);

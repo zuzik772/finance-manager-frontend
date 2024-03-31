@@ -3,7 +3,6 @@ import React, { useEffect } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../entities/RootStackParamList";
 import Entry from "../components/EntryItem";
-import { EntryProps } from "../components/EntryItem";
 import { deleteEntry, fetchEntries } from "../store/entrySlice";
 import { useAppDispatch, useAppSelector } from "../hooks/hooks";
 import Toast from "react-native-toast-message";
