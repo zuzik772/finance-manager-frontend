@@ -8,13 +8,15 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../entities/RootStackParamList";
 import { Controller, useForm } from "react-hook-form";
-import axios from "axios";
 import Toast from "react-native-toast-message";
+import { useAppDispatch, useAppSelector } from "../hooks/hooks";
+import { RootState } from "../store/store";
+import { login } from "../store/userSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
 
 type LoginSchema = {
   email: string;
@@ -22,43 +24,23 @@ type LoginSchema = {
 };
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 export default function LoginScreen({ navigation }: Props) {
-  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+  const dispatch = useAppDispatch();
+  const { isLoading, error } = useAppSelector((state: RootState) => state.user);
+  const [user, setUser] = useState(null);
 
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-    reset,
-  } = useForm<LoginSchema>({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = async (data: LoginSchema) => {
-    const { email, password } = data;
+  const onSubmit = async (credentials: LoginSchema) => {
     try {
-      const response = await axios.post(
-        "http://192.168.1.156:3000/auth/login",
-        {
-          email,
-          password,
+      dispatch(login(credentials)).then((res) => {
+        if (res.payload) {
+          setUser(res.payload);
+          console.log("Loginscreen, Login successful");
+          navigation.navigate("EntryList");
+          reset({
+            email: "",
+            password: "",
+          });
         }
-      );
-      if (response.status === 200) {
-        const { access_token } = response.data;
-        await AsyncStorage.setItem("email", email);
-        await AsyncStorage.setItem("password", password);
-        await AsyncStorage.setItem("token", access_token);
-        console.log("Login successful");
-        setIsUserLoggedIn(true);
-        navigation.navigate("EntryList");
-        reset({
-          email: "",
-          password: "",
-        });
-      }
+      });
     } catch (error) {
       console.log("Login failed", error);
       Toast.show({
@@ -67,32 +49,46 @@ export default function LoginScreen({ navigation }: Props) {
       });
     }
   };
+
   const SignOut = async () => {
-    try {
-      await AsyncStorage.removeItem("email");
-      await AsyncStorage.removeItem("password");
-      setIsUserLoggedIn(false);
-      console.log("Sign out successful");
-    } catch (error) {
-      console.log("Sign out failed", error);
-    }
+    await AsyncStorage.removeItem("user");
+    setUser(null);
+    Toast.show({
+      type: "success",
+      text1: "User signed out",
+    });
   };
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
-      const email = await AsyncStorage.getItem("email");
-      const password = await AsyncStorage.getItem("password");
-      if (email && password) {
-        setIsUserLoggedIn(true);
+    const fetchUser = async () => {
+      const user = await AsyncStorage.getItem("user");
+      if (user !== null) {
+        // The user data is stored as a string, so we parse it to an object
+        const parsedUser = JSON.parse(user);
+        console.log(parsedUser);
+        setUser(parsedUser);
       }
     };
-    checkLoginStatus();
+
+    fetchUser();
   }, []);
+
+  const {
+    reset,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<LoginSchema>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        {isUserLoggedIn ? (
+        {user ? (
           <>
             <View style={styles.button}>
               <Button
@@ -130,7 +126,7 @@ export default function LoginScreen({ navigation }: Props) {
                 required: "Email is required",
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-                  message: "invalid email address",
+                  message: "Invalid email address",
                 },
               }}
             />
@@ -159,10 +155,10 @@ export default function LoginScreen({ navigation }: Props) {
                 },
               }}
             />
-
+            {error && <Text style={styles.errorMessage}>{error}</Text>}
             <View style={styles.button}>
               <Button
-                title="Login"
+                title={`${isLoading ? "Loading..." : "Login"}`}
                 onPress={handleSubmit(onSubmit)}
                 color={"white"}
               ></Button>

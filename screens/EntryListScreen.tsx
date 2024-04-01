@@ -52,7 +52,7 @@ export default function EntryListScreen({ navigation }: Props) {
             actionDelete={() => handleDeleteEntry(item.id!)}
           />
         )}
-        keyExtractor={(item) => item.name}
+        keyExtractor={(item) => item.id.toString()}
         style={{ width: "100%" }}
       />
     </View>

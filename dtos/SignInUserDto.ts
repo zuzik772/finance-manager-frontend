@@ -1,4 +1,4 @@
-export class User {
+export class SignInUserDto {
   email: string;
   password: string;
   constructor(email: string, password: string) {
