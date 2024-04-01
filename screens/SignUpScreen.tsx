@@ -12,13 +12,12 @@ import React from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../entities/RootStackParamList";
 import { Controller, useForm } from "react-hook-form";
-import axios from "axios";
 import Toast from "react-native-toast-message";
 import { signUp } from "../store/userSlice";
-import { useDispatch } from "react-redux";
 import { CreateUserDto } from "../dtos/CreateUserDto";
-import { useAppDispatch } from "../hooks/hooks";
+import { useAppDispatch, useAppSelector } from "../hooks/hooks";
 import { UserAPI } from "../api/userAPI";
+import { RootState } from "../store/store";
 
 type SignUpSchema = {
   email: string;
@@ -27,40 +26,36 @@ type SignUpSchema = {
 };
 type Props = NativeStackScreenProps<RootStackParamList, "SignUp">;
 export default function SignUpScreen({ navigation }: Props) {
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-    watch,
-  } = useForm<SignUpSchema>({
-    defaultValues: {
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
+  const { isLoading } = useAppSelector((state: RootState) => state.user);
 
-  const password = watch("password");
   const dispatch = useAppDispatch();
-  const onSubmit = async (data: SignUpSchema) => {
+  const onSubmit = async (credentials: SignUpSchema) => {
+    const { email, password, confirmPassword } = credentials;
     try {
-      const existingUser = await UserAPI.fetchUser(data.email);
+      const existingUser = await UserAPI.fetchUser(email);
       if (existingUser) {
         Toast.show({
           type: "error",
           text1: "Email already exists",
         });
       } else {
-        const actionResult = await dispatch(
-          signUp(
-            new CreateUserDto(data.email, data.password, data.confirmPassword)
-          )
-        );
-        const isSignUpSuccessful = actionResult.payload;
-        if (isSignUpSuccessful) {
-          console.log("Sign up successful");
-          navigation.navigate("Login");
-        }
+        dispatch(
+          signUp(new CreateUserDto(email, password, confirmPassword))
+        ).then((res) => {
+          if (res) {
+            navigation.navigate("Login");
+            reset({
+              email: "",
+              password: "",
+              confirmPassword: "",
+            });
+          } else {
+            Toast.show({
+              type: "error",
+              text1: "Sign up failed",
+            });
+          }
+        });
       }
     } catch (error) {
       console.log("Sign up failed", error);
@@ -70,6 +65,21 @@ export default function SignUpScreen({ navigation }: Props) {
       });
     }
   };
+
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+    watch,
+    reset,
+  } = useForm<SignUpSchema>({
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+  const password = watch("password");
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -151,7 +161,7 @@ export default function SignUpScreen({ navigation }: Props) {
 
           <View style={styles.button}>
             <Button
-              title="Sign up"
+              title={`${isLoading ? "Loading..." : "Sign Up"}`}
               onPress={handleSubmit(onSubmit)}
               color={"white"}
             ></Button>

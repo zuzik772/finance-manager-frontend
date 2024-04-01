@@ -25,7 +25,7 @@ type LoginSchema = {
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 export default function LoginScreen({ navigation }: Props) {
   const dispatch = useAppDispatch();
-  const { isLoading, error } = useAppSelector((state: RootState) => state.user);
+  const { isLoading } = useAppSelector((state: RootState) => state.user);
   const [user, setUser] = useState(null);
 
   const onSubmit = async (credentials: LoginSchema) => {
@@ -155,7 +155,6 @@ export default function LoginScreen({ navigation }: Props) {
                 },
               }}
             />
-            {error && <Text style={styles.errorMessage}>{error}</Text>}
             <View style={styles.button}>
               <Button
                 title={`${isLoading ? "Loading..." : "Login"}`}
