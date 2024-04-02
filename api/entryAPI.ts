@@ -2,7 +2,8 @@ import axios from "axios";
 import { CreateEntryDto } from "../dtos/CreateEntryDto";
 import { UpdateEntryDTO } from "../dtos/UpdateEntryDto";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+//TODO
+//ADD axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 export class EntryAPI {
   static baseUrl = "http://192.168.1.155:3000/entry";
 

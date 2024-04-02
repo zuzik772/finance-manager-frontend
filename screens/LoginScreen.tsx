@@ -14,7 +14,7 @@ import { Controller, useForm } from "react-hook-form";
 import Toast from "react-native-toast-message";
 import { useAppDispatch, useAppSelector } from "../hooks/hooks";
 import { RootState } from "../store/store";
-import { login } from "../store/userSlice";
+import { login, logout } from "../store/userSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 
@@ -30,16 +30,19 @@ export default function LoginScreen({ navigation }: Props) {
 
   const onSubmit = async (credentials: LoginSchema) => {
     try {
-      dispatch(login(credentials)).then((res) => {
-        if (res.payload) {
-          setToken(res.payload);
-          navigation.navigate("EntryList");
-          reset({
-            email: "",
-            password: "",
-          });
-        }
-      });
+      await dispatch(login(credentials))
+        .unwrap()
+        .then((res) => {
+          console.log("Login successful", res);
+          if (res) {
+            setToken(res);
+            navigation.navigate("EntryList");
+            reset({
+              email: "",
+              password: "",
+            });
+          }
+        });
     } catch (error) {
       console.log("Login failed", error);
       Toast.show({
@@ -50,7 +53,8 @@ export default function LoginScreen({ navigation }: Props) {
   };
 
   const SignOut = async () => {
-    await AsyncStorage.removeItem("user");
+    // await AsyncStorage.removeItem("user");
+    dispatch(logout());
     setToken(null);
     Toast.show({
       type: "success",
@@ -64,7 +68,6 @@ export default function LoginScreen({ navigation }: Props) {
       if (token !== null) {
         // The user data is stored as a string, so we parse it to an object
         const parsedToken = JSON.parse(token);
-        console.log("login screen", parsedToken);
         setToken(parsedToken);
       }
     };
@@ -106,10 +109,13 @@ export default function LoginScreen({ navigation }: Props) {
           </>
         ) : (
           <SafeAreaView>
-            <Text style={styles.label}>Email:</Text>
             {errors.email && (
               <Text style={styles.errorMessage}>{errors.email.message}</Text>
             )}
+            {errors.password && (
+              <Text style={styles.errorMessage}>{errors.password.message}</Text>
+            )}
+            <Text style={styles.label}>Email:</Text>
             <Controller
               control={control}
               render={({ field: { onChange, value } }) => (
@@ -122,18 +128,14 @@ export default function LoginScreen({ navigation }: Props) {
               )}
               name="email"
               rules={{
-                required: "Email is required",
+                required: "Invalid credentials",
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-                  message: "Invalid email address",
+                  message: "Invalid credentials",
                 },
               }}
             />
-
             <Text style={styles.label}>Password:</Text>
-            {errors.password && (
-              <Text style={styles.errorMessage}>{errors.password.message}</Text>
-            )}
             <Controller
               control={control}
               render={({ field: { onChange, value } }) => (
@@ -147,10 +149,10 @@ export default function LoginScreen({ navigation }: Props) {
               )}
               name="password"
               rules={{
-                required: "Password is required",
+                required: true,
                 minLength: {
                   value: 6,
-                  message: "Password must be at least 6 characters long",
+                  message: "",
                 },
               }}
             />

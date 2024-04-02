@@ -28,15 +28,26 @@ export const signUp = createAsyncThunk(
 );
 
 export const login = createAsyncThunk("login", async (user: User, thunkAPI) => {
-  const req = await axios.post(`${baseUrl}/auth/login`, user);
-  const res = await req.data.access_token;
   try {
+    const req = await axios.post(`${baseUrl}/auth/login`, user);
+    const res = await req.data.access_token;
+    console.log("Data received:", res);
     await AsyncStorage.setItem("user", JSON.stringify(res));
     console.log("Data stored successfully");
-  } catch (error) {
+    return res;
+  } catch (error: any) {
     console.error("Error storing data:", error);
+    return thunkAPI.rejectWithValue(error.response.data);
   }
-  return res;
+});
+
+export const logout = createAsyncThunk("logout", async (_, thunkAPI) => {
+  try {
+    await AsyncStorage.removeItem("user");
+    console.log("User logged out");
+  } catch (error) {
+    console.error("Error logging out:", error);
+  }
 });
 
 export const userSlice = createSlice({
@@ -84,6 +95,10 @@ export const userSlice = createSlice({
       } else {
         state.error = action.error.message;
       }
+    });
+    builder.addCase(logout.fulfilled, (state) => {
+      state.user = null;
+      state.error = null;
     });
   },
 });
