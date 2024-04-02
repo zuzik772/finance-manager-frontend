@@ -37,6 +37,7 @@ const AddEntryScreen = () => {
   const navigation = useNavigation();
 
   const onSubmit = (data: CreateEntryDto) => {
+    console.log("create entry data", data);
     dispatch(
       createEntry(
         new CreateEntryDto(

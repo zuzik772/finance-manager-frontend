@@ -17,7 +17,7 @@ const initialState: InitialStateProps = {
   error: null,
 };
 
-const baseUrl = "http://192.168.1.156:3000";
+const baseUrl = "http://192.168.1.155:3000";
 
 export const signUp = createAsyncThunk(
   "signUp",
@@ -30,8 +30,12 @@ export const signUp = createAsyncThunk(
 export const login = createAsyncThunk("login", async (user: User, thunkAPI) => {
   const req = await axios.post(`${baseUrl}/auth/login`, user);
   const res = await req.data.access_token;
-  const localStorage = await AsyncStorage.setItem("user", JSON.stringify(res));
-  console.log("localStorage", localStorage);
+  try {
+    await AsyncStorage.setItem("user", JSON.stringify(res));
+    console.log("Data stored successfully");
+  } catch (error) {
+    console.error("Error storing data:", error);
+  }
   return res;
 });
 

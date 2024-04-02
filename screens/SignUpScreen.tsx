@@ -36,7 +36,7 @@ export default function SignUpScreen({ navigation }: Props) {
       if (existingUser) {
         Toast.show({
           type: "error",
-          text1: "Email already exists",
+          text1: "Invalid credentials",
         });
       } else {
         dispatch(

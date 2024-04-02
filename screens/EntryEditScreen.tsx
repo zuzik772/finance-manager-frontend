@@ -53,12 +53,23 @@ const EntryEditScreen = React.forwardRef((props: Props, ref) => {
       name: data.name,
       comment: data.comment,
     };
-    dispatch(updateEntry({ entry: updateEntryDTO, id: entryId }));
-    Toast.show({
-      type: "success",
-      text1: "Entry has been updated!",
-    });
-    navigation.goBack();
+
+    try {
+      await dispatch(
+        updateEntry({ entry: updateEntryDTO, id: entryId })
+      ).unwrap();
+      Toast.show({
+        type: "success",
+        text1: "Entry has been updated!",
+      });
+      navigation.goBack();
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error updating entry!",
+      });
+      navigation.goBack();
+    }
   });
 
   return (

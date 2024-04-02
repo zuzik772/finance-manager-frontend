@@ -26,14 +26,13 @@ type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 export default function LoginScreen({ navigation }: Props) {
   const dispatch = useAppDispatch();
   const { isLoading } = useAppSelector((state: RootState) => state.user);
-  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
 
   const onSubmit = async (credentials: LoginSchema) => {
     try {
       dispatch(login(credentials)).then((res) => {
         if (res.payload) {
-          setUser(res.payload);
-          console.log("Loginscreen, Login successful");
+          setToken(res.payload);
           navigation.navigate("EntryList");
           reset({
             email: "",
@@ -52,7 +51,7 @@ export default function LoginScreen({ navigation }: Props) {
 
   const SignOut = async () => {
     await AsyncStorage.removeItem("user");
-    setUser(null);
+    setToken(null);
     Toast.show({
       type: "success",
       text1: "User signed out",
@@ -61,12 +60,12 @@ export default function LoginScreen({ navigation }: Props) {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const user = await AsyncStorage.getItem("user");
-      if (user !== null) {
+      const token = await AsyncStorage.getItem("user");
+      if (token !== null) {
         // The user data is stored as a string, so we parse it to an object
-        const parsedUser = JSON.parse(user);
-        console.log(parsedUser);
-        setUser(parsedUser);
+        const parsedToken = JSON.parse(token);
+        console.log("login screen", parsedToken);
+        setToken(parsedToken);
       }
     };
 
@@ -88,7 +87,7 @@ export default function LoginScreen({ navigation }: Props) {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        {user ? (
+        {token ? (
           <>
             <View style={styles.button}>
               <Button

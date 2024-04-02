@@ -6,10 +6,13 @@ import Entry from "../components/EntryItem";
 import { deleteEntry, fetchEntries } from "../store/entrySlice";
 import { useAppDispatch, useAppSelector } from "../hooks/hooks";
 import Toast from "react-native-toast-message";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { RootState } from "../store/store";
 
 type Props = NativeStackScreenProps<RootStackParamList, "EntryList">;
 export default function EntryListScreen({ navigation }: Props) {
-  const entries = useAppSelector((state) => state.entry.entries);
+  const entries = useAppSelector((state: RootState) => state.entry.entries);
+
   const dispatch = useAppDispatch();
 
   const handleCreateEntry = () => {
@@ -17,11 +20,18 @@ export default function EntryListScreen({ navigation }: Props) {
   };
 
   const handleDeleteEntry = async (id: number) => {
-    dispatch(deleteEntry(id));
-    Toast.show({
-      type: "success",
-      text1: "Entry has been deleted!",
-    });
+    try {
+      await dispatch(deleteEntry(id)).unwrap();
+      Toast.show({
+        type: "success",
+        text1: "Entry has been deleted!",
+      });
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error deleting entry!",
+      });
+    }
   };
 
   useEffect(() => {
