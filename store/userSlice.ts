@@ -17,7 +17,7 @@ const initialState: InitialStateProps = {
   error: null,
 };
 
-const baseUrl = "http://192.168.1.155:3000";
+const baseUrl = "http://10.59.169.168:3000";
 
 export const signUp = createAsyncThunk(
   "signUp",
@@ -31,7 +31,6 @@ export const login = createAsyncThunk("login", async (user: User, thunkAPI) => {
   try {
     const req = await axios.post(`${baseUrl}/auth/login`, user);
     const res = await req.data.access_token;
-    console.log("Data received:", res);
     await AsyncStorage.setItem("user", JSON.stringify(res));
     console.log("Data stored successfully");
     return res;

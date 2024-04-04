@@ -54,8 +54,8 @@ export const deleteEntry = createAsyncThunk(
   "deleteEntry",
   async (id: number, thunkAPI) => {
     try {
-      const response = await EntryAPI.deleteEntry(id);
-      return response.data;
+      await EntryAPI.deleteEntry(id);
+      return id;
     } catch (error: any) {
       console.error("ENTRY SLICE Error deleting entry:", error);
       return thunkAPI.rejectWithValue(error.response.data);

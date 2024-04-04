@@ -5,7 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 //TODO
 //ADD axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 export class EntryAPI {
-  static baseUrl = "http://192.168.1.155:3000/entry";
+  static baseUrl = "http://10.59.169.168:3000/entry";
 
   static async getToken(): Promise<string | null> {
     try {
@@ -91,4 +91,31 @@ export class EntryAPI {
       throw error;
     }
   }
+  // static async deleteEntry(id: number): Promise<any> {
+  //   const token = await this.getToken();
+  //   try {
+  //     // Check if the entry exists
+  //     const checkResponse = await axios.get(`${this.baseUrl}/${id}`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     console.log("checkResponse", checkResponse);
+  //     if (checkResponse.status === 200) {
+  //       // If the GET request is successful, delete the entry
+  //       const response = await axios.delete(`${this.baseUrl}/${id}`, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
+  //       return response.data;
+  //     } else {
+  //       console.error("ENTRY API Error: Entry does not exist");
+  //       throw new Error("Entry does not exist");
+  //     }
+  //   } catch (error) {
+  //     console.error("ENTRY API Error:", error);
+  //     throw error;
+  //   }
+  // }
 }

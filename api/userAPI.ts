@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export class UserAPI {
-  static baseUrl = "http://192.168.1.155:3000";
+  static baseUrl = "http://10.59.169.168:3000";
 
   static async fetchUser(email: string) {
     try {
