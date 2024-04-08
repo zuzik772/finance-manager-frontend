@@ -1,15 +1,15 @@
 import axios from "axios";
 import { CreateEntryDto } from "../dtos/CreateEntryDto";
 import { UpdateEntryDTO } from "../dtos/UpdateEntryDto";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 //TODO
 //ADD axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 export class EntryAPI {
-  static baseUrl = "http://10.59.169.168:3000/entry";
+  static baseUrl = process.env.baseUrl + "/entry";
 
   static async getToken(): Promise<string | null> {
     try {
-      const tokenData = await AsyncStorage.getItem("user");
+      const tokenData = await SecureStore.getItemAsync("user");
       return tokenData ? JSON.parse(tokenData) : null;
     } catch (error) {
       console.error("Error getting token:", error);
@@ -19,6 +19,8 @@ export class EntryAPI {
 
   static async fetchAll(): Promise<any> {
     const token = await this.getToken();
+    console.log("token", token);
+    console.log("hereeeeeeeeeeee baseurl", this.baseUrl);
     try {
       const response = await axios.get(this.baseUrl, {
         headers: {

@@ -19,7 +19,6 @@ import { RootStackParamList } from "../entities/RootStackParamList";
 import { useForm } from "react-hook-form";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Toast from "react-native-toast-message";
-import { useSelector } from "react-redux";
 
 type Props = NativeStackScreenProps<RootStackParamList, "EntryEdit">;
 const EntryEditScreen = React.forwardRef((props: Props, ref) => {

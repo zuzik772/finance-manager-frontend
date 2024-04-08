@@ -15,8 +15,8 @@ import Toast from "react-native-toast-message";
 import { useAppDispatch, useAppSelector } from "../hooks/hooks";
 import { RootState } from "../store/store";
 import { login, logout } from "../store/userSlice";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
+import * as SecureStore from "expo-secure-store";
 
 type LoginSchema = {
   email: string;
@@ -64,7 +64,8 @@ export default function LoginScreen({ navigation }: Props) {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = await AsyncStorage.getItem("user");
+      // const token = await AsyncStorage.getItem("user");
+      const token = await SecureStore.getItemAsync("user");
       if (token !== null) {
         // The user data is stored as a string, so we parse it to an object
         const parsedToken = JSON.parse(token);

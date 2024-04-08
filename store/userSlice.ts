@@ -3,7 +3,7 @@ import { User } from "../entities/User";
 import { UserAPI } from "../api/userAPI";
 import { CreateUserDto } from "../dtos/CreateUserDto";
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 export type InitialStateProps = {
   user: User | null;
@@ -17,7 +17,7 @@ const initialState: InitialStateProps = {
   error: null,
 };
 
-const baseUrl = "http://10.59.169.168:3000";
+const baseUrl = process.env.baseUrl;
 
 export const signUp = createAsyncThunk(
   "signUp",
@@ -31,7 +31,10 @@ export const login = createAsyncThunk("login", async (user: User, thunkAPI) => {
   try {
     const req = await axios.post(`${baseUrl}/auth/login`, user);
     const res = await req.data.access_token;
-    await AsyncStorage.setItem("user", JSON.stringify(res));
+    //TODO replace async storage with secure storage
+
+    await SecureStore.setItemAsync("user", JSON.stringify(res));
+    // await AsyncStorage.setItem("user", JSON.stringify(res));
     console.log("Data stored successfully");
     return res;
   } catch (error: any) {
@@ -42,7 +45,8 @@ export const login = createAsyncThunk("login", async (user: User, thunkAPI) => {
 
 export const logout = createAsyncThunk("logout", async (_, thunkAPI) => {
   try {
-    await AsyncStorage.removeItem("user");
+    // await AsyncStorage.removeItem("user");
+    await SecureStore.deleteItemAsync("user");
     console.log("User logged out");
   } catch (error) {
     console.error("Error logging out:", error);
@@ -53,6 +57,7 @@ export const userSlice = createSlice({
   name: "user",
   initialState: initialState,
   reducers: {},
+  // Whats the difference between extraReducers and reducers?
   extraReducers: (builder) => {
     builder.addCase(signUp.pending, (state) => {
       state.isLoading = true;

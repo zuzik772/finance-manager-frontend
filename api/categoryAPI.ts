@@ -2,7 +2,7 @@ import axios from "axios";
 import { CreateCategoryDto } from "../dtos/CreateCategoryDto";
 
 export class CategoryAPI {
-  static baseUrl = "http://10.59.169.168:3000/category";
+  static baseUrl = process.env.baseUrl + "/category";
 
   static async fetchAll() {
     try {
